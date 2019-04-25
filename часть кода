@@ -1,0 +1,156 @@
+Public nstroki As Integer
+Public kodtovara As Integer
+Public priznak As Integer
+Public vybor As Integer
+Public Sub Form1Show()
+If priznak <> 1 Then
+UserForm1.Show
+
+End If
+End Sub
+Public Sub Form2Show()
+vybor = 1
+UserForm2.Show
+End Sub
+Public Sub Form2_1Show()
+vybor = 2
+UserForm2.Show
+End Sub
+
+Public Sub Cena1()
+Dim RowT As Integer
+Dim RowSk As Integer
+RowT = Sheets("Товары").Cells(Rows.Count, 1).End(xlUp).Row
+RowSk = Sheets("Склад").Cells(Rows.Count, 1).End(xlUp).Row
+For i = 6 To RowT
+    For j = 7 To RowSk
+    If Sheets("Товары").Cells(i, 1) = Sheets("Склад").Cells(j, 2) Then
+    Worksheets("Товары").Cells(i, 7).Copy
+    Worksheets("Склад").Cells(j, 8).PasteSpecial xlPasteValuesAndNumberFormats
+    Cells(j, 9).NumberFormat = "0.00"
+    Cells(j, 9) = Cells(j, 8) * Cells(j, 5)
+    End If
+    Next j
+Next i
+End Sub
+
+Public Sub prais()
+Dim RowT As Integer
+RowT = Sheets("Товары").Cells(Rows.Count, 1).End(xlUp).Row
+For i = 6 To RowT
+    Sheets("Прайс_внутренний").Cells(i - 4, 1) = Sheets("Товары").Cells(i, 1)
+    Sheets("Прайс_внутренний").Cells(i - 4, 2) = Sheets("Товары").Cells(i, 2)
+    Sheets("Прайс_внутренний").Cells(i - 4, 3) = Sheets("Товары").Cells(i, 3)
+    Sheets("Прайс_внутренний").Cells(i - 4, 4) = Sheets("Товары").Cells(i, 7)
+    Sheets("Прайс_внутренний").Cells(i - 4, 5) = Sheets("Товары").Cells(i, 8)
+    Sheets("Прайс_внутренний").Cells(i - 4, 6) = Sheets("Товары").Cells(i, 9)
+        RowSk = Sheets("Склад").Cells(Rows.Count, 1).End(xlUp).Row
+        Sum = 0
+        For j = 7 To RowSk
+        
+        If Sheets("Склад").Cells(j, 2) = Sheets("Товары").Cells(i, 1) Then
+            If Sheets("Склад").Cells(j, 4) = "приход" Then
+            Sum = Sum + Sheets("Склад").Cells(j, 5)
+            ElseIf Sheets("Склад").Cells(j, 4) = "расход" Then
+            Sum = Sum - Sheets("Склад").Cells(j, 5)
+            End If
+        End If
+        Next j
+
+    Sheets("Прайс_внутренний").Cells(i - 4, 7) = Sum
+Next i
+    
+End Sub
+Public Sub clearpraisvnutr()
+Dim s As String
+Dim dlt As Integer
+dlt = Sheets("Прайс_внутренний").Cells(Rows.Count, 1).End(xlUp).Row
+s = "A2:G" + LTrim(Str(dlt + 4))
+Range(s).Clear
+End Sub
+
+
+Public Sub FormTabl()
+Dim RowT As Integer
+RowT = Sheets("Товары").Cells(Rows.Count, 1).End(xlUp).Row
+For i = 6 To RowT
+    Sheets("Промежуточные_итоги").Cells(i - 3, 1) = Sheets("Товары").Cells(i, 1)
+    Sheets("Промежуточные_итоги").Cells(i - 3, 2) = Sheets("Товары").Cells(i, 2)
+    Sheets("Промежуточные_итоги").Cells(i - 3, 3) = Sheets("Товары").Cells(i, 3)
+    Sheets("Промежуточные_итоги").Cells(i - 3, 4) = Sheets("Товары").Cells(i, 4)
+    Sheets("Промежуточные_итоги").Cells(i - 3, 5) = Sheets("Товары").Cells(i, 5)
+    Sheets("Промежуточные_итоги").Cells(i - 3, 6) = Sheets("Товары").Cells(i, 6)
+    Sheets("Промежуточные_итоги").Cells(i - 3, 7) = Sheets("Товары").Cells(i, 7)
+    Sheets("Промежуточные_итоги").Cells(i - 3, 8) = Sheets("Товары").Cells(i, 8)
+    Sheets("Промежуточные_итоги").Cells(i - 3, 9) = Sheets("Товары").Cells(i, 9)
+Next i
+End Sub
+
+Public Sub SortProizv()
+rowp = Sheets("Промежуточные_итоги").Cells(Rows.Count, 1).End(xlUp).Row
+Sheets("Промежуточные_итоги").Range(Sheets("Промежуточные_итоги").Cells(2, 1), Sheets("Промежуточные_итоги").Cells(rowp, 9)).Sort _
+Key1:=Sheets("Промежуточные_итоги").Cells(2, 8), Order1:=xlAscending, _
+Header:=xlYes, MatchCase:=False, _
+Orientation:=xlTopToBottom
+End Sub
+
+Public Sub promejitogu()
+rowp = Sheets("Промежуточные_итоги").Cells(Rows.Count, 1).End(xlUp).Row
+Sheets("Промежуточные_итоги").Range(Sheets("Промежуточные_итоги").Cells(2, 1), Sheets("Промежуточные_итоги").Cells(rowp, 9)).Subtotal GroupBy:=8, Function:=xlCount, TotalList:=Array(8), _
+Replace:=True, PageBreaks:=False, SummaryBelowData:=xlSummaryBelow
+End Sub
+
+Public Sub promejudalit()
+Dim dlt As Integer
+dlt = Sheets("Промежуточные_итоги").Cells(Rows.Count, 1).End(xlUp).Row
+Dim s As String
+s = "A3:I" + LTrim(Str(dlt + 4))
+Range(s).RemoveSubtotal
+Range(s).Clear
+End Sub
+
+Public Sub praiskl()
+Dim RowT As Integer
+Dim L As Integer
+L = 13
+RowT = Sheets("Товары").Cells(Rows.Count, 1).End(xlUp).Row
+For i = 6 To RowT
+    
+        RowSk = Sheets("Склад").Cells(Rows.Count, 1).End(xlUp).Row
+        Sum = 0
+        For j = 7 To RowSk
+        
+        If Sheets("Склад").Cells(j, 2) = Sheets("Товары").Cells(i, 1) Then
+            If Sheets("Склад").Cells(j, 4) = "приход" Then
+            Sum = Sum + Sheets("Склад").Cells(j, 5)
+            ElseIf Sheets("Склад").Cells(j, 4) = "расход" Then
+            Sum = Sum - Sheets("Склад").Cells(j, 5)
+            End If
+        End If
+        Next j
+
+   If (Sum > 0) Then
+   Sheets("Прайс_клиентский").Cells(L, 2) = Sheets("Товары").Cells(i, 1)
+    Sheets("Прайс_клиентский").Cells(L, 3) = Sheets("Товары").Cells(i, 2)
+    Sheets("Прайс_клиентский").Cells(L, 4) = Sheets("Товары").Cells(i, 3)
+    Sheets("Прайс_клиентский").Cells(L, 5) = Sheets("Товары").Cells(i, 7)
+    Sheets("Прайс_клиентский").Cells(L, 6) = Sheets("Товары").Cells(i, 8)
+    Sheets("Прайс_клиентский").Cells(L, 7) = Sheets("Товары").Cells(i, 9)
+    Sheets("Прайс_клиентский").Cells(L, 8) = Sum
+    L = L + 1
+    End If
+Next i
+    Sheets("Прайс_клиентский").Cells(10, 5) = Format(Now, "dd.mm.yyyy")
+    
+End Sub
+
+
+Public Sub clearkl()
+Dim s As String
+Dim dlt As Integer
+dlt = Sheets("Прайс_клиентский").Cells(Rows.Count, 2).End(xlUp).Row
+s = "B13:H" + LTrim(Str(dlt + 4))
+Range(s).Clear
+End Sub
+
+
